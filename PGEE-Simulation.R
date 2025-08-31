@@ -380,30 +380,25 @@ for (rho in unique(table2_summary$TrueRho)) {
 cat("------------------------------------------------------------------\n")
 
 
-# --- 在整个模拟脚本的【最末尾】添加 ---
 
-# 这个命令会将所有重要的结果和参数都打包到一个文件里，更加方便
 save(summary_table1, table2_summary, lambda_record, cv_result, signal_idx, beta_true_full,
      file = "C:/Users/Lenovo/Desktop/All_Simulation_Results.RData")
 
-print("所有模拟结果和绘图所需参数已成功保存到桌面！")
+
 
 
 print(lambda_record)
 
 
 
-# 定义一个统一的调色板 (您可以选择任何您喜欢的颜色)
-# 这里的颜色代码来自 "Set2" 调色板，以确保与您之前的风格类似
+
 my_color_palette <- c(
   "ar1" = "#fc8d62",          # 橙红色
   "exchangeable" = "#66c2a5",   # 蓝绿色
   "independence" = "#8da0cb"    # 蓝紫色
 )
 
-
-
-#MSE柱状图
+#MSE
 p1 <- ggplot(summary_table1, aes(x = Method, y = MSE, fill = WorkingCorr)) +
   geom_bar(stat = "identity", position = "dodge") +
   facet_wrap(~TrueRho, labeller = label_bquote(cols = "True " * rho * " = " * .(TrueRho))) +
@@ -413,9 +408,9 @@ p1 <- ggplot(summary_table1, aes(x = Method, y = MSE, fill = WorkingCorr)) +
     y = "MSE", 
     fill = "Working Correlation"
   ) +
-  theme_bw(base_size = 18) +  # 设置全局基础字号
+  theme_bw(base_size = 18) + 
   theme(
-    plot.title = element_text(size = 20, face = "bold", hjust = 0.5), # 居中标题加粗
+    plot.title = element_text(size = 20, face = "bold", hjust = 0.5),
     axis.title.x = element_text(size = 18), 
     axis.title.y = element_text(size = 18),
     axis.text.x = element_text(size = 14, angle = 45, hjust = 1),
@@ -423,10 +418,9 @@ p1 <- ggplot(summary_table1, aes(x = Method, y = MSE, fill = WorkingCorr)) +
     legend.title = element_text(size = 16),
     legend.text = element_text(size = 14),
     strip.text = element_text(size = 16),
-    #移除最右边注释
-    # facet 标签
+    
   ) +
-  scale_fill_manual(values = my_color_palette)# 图1：MSE
+  scale_fill_manual(values = my_color_palette)
 ggsave(
   filename = "C:/Users/Lenovo/Desktop/plot_1_MSE.pdf", 
   plot = p1, 
@@ -443,12 +437,12 @@ ggsave(
 
 #TP VS FP
 p3 <- ggplot(summary_table1, aes(x = FP, y = TP, color = Method, shape = WorkingCorr)) +
-  geom_point(size = 8, alpha = 0.9) +   # ✅ 点大小从6 → 8
+  geom_point(size = 8, alpha = 0.9) +   
   facet_wrap(~TrueRho, ncol = 1, labeller = label_bquote("True " * rho * " = " * .(TrueRho))) +
   geom_hline(yintercept = 5, linetype = "dotted", color = "grey60", size = 0.7) +
   geom_vline(xintercept = 0, linetype = "dotted", color = "grey60", size = 0.7) +
   scale_x_continuous(expand = expansion(mult = c(0.05, 0.05))) +
-  scale_y_continuous(limits = c(4.97, 5.03)) +   # ✅ 纵轴压缩（之前是 4.95–5.05）
+  scale_y_continuous(limits = c(4.97, 5.03)) +  
   labs(
     title = "True Positives vs False Positives",
     x = "False Positives", y = "True Positives",
@@ -466,7 +460,7 @@ p3 <- ggplot(summary_table1, aes(x = FP, y = TP, color = Method, shape = Working
     panel.spacing = unit(0.3, "lines")
   ) +
   scale_color_brewer(type = "qual", palette = "Dark2")
-# 图3：TP / FP
+# TP / FP
 ggsave(
   filename = "C:/Users/Lenovo/Desktop/plot_3_TP_FP.pdf", 
   plot = p3, 
@@ -477,7 +471,7 @@ ggsave(
 
 
 
-# 偏差图
+# Bias
 beta_labels <- c(expression(beta[1]), expression(beta[2]),
                  expression(beta[3]), expression(beta[4]),
                  expression(beta[5]))
@@ -504,7 +498,7 @@ labs(
   scale_x_discrete(labels = beta_labels) +  # ✅ 使用表达式标签
   scale_fill_manual(values = my_color_palette)
 
-# 图4：Bias
+# Bias
 ggsave(
   filename = "C:/Users/Lenovo/Desktop/plot_4_Bias.pdf", 
   plot = p4, 
@@ -518,33 +512,20 @@ ggsave(
 
 
 
-# 0. 确保已加载 cowplot
+
 library(cowplot)
 
-# 1. 假设您已经创建好了 p1, p2, p3, p4, p5, p6 这六个图
-
-# 2. 【关键】使用 plot_grid 组合图，并设置对齐方式
-#    align = 'hv' 表示在水平(h)和垂直(v)方向上都对齐绘图区域的边界
-
-# 组合第一行
 row1 <- plot_grid(p1, p2, ncol = 2, align = 'hv')
 
-# 组合第二行
 row2 <- plot_grid(p3, p4, ncol = 2, align = 'hv')
 
-# 组合第三行
 row3 <- plot_grid(p5, p6, ncol = 2, align = 'hv')
 
 
-# 3. 将所有对齐好的行垂直组合成一个最终的图
 final_aligned_plot <- plot_grid(row1, row2, row3, nrow = 3)
 
-# 4. （可选）如果需要共享图例，可以再加上
-#    shared_legend <- get_legend(p1)
-#    final_plot_with_legend <- plot_grid(final_aligned_plot, shared_legend, rel_widths = c(4, 1))
 
 
-# 5. 保存这张已经完美对齐的组合图
 ggsave(
   filename = "C:/Users/Lenovo/Desktop/my_perfectly_aligned_plots.pdf.pdf",
   plot = final_aligned_plot,
@@ -554,35 +535,6 @@ ggsave(
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#4. 综合性能热图
-# ===================================================================
-
-# 方法2：不使用unite函数的简单方案
 summary_table1_copy <- summary_table1
 summary_table1_copy$Condition <- paste(summary_table1_copy$Method, summary_table1_copy$WorkingCorr, sep = "_")
 
@@ -591,12 +543,10 @@ beta_labels <- c(expression(beta[1]), expression(beta[2]),
                  expression(beta[3]), expression(beta[4]),
                  expression(beta[5]))
 p5 <- ggplot(table2_summary, aes(x = factor(beta_idx), y = CP, fill = WorkingCorr)) +
-  geom_bar(stat = "identity", position = position_dodge(width = 0.8)) +  # 调整间距
-  # ... 其他代码保持不变
+  geom_bar(stat = "identity", position = position_dodge(width = 0.8)) +  
   geom_hline(yintercept = 0.95, linetype = "dashed", color = "red", size = 1) +
   annotate("text", x = 1.2, y = 0.97, label = "95%", 
-           color = "red", size = 4, hjust = 0, fontface = "bold") +  # ← 这里需要加 +
-  # 修正后的代码
+           color = "red", size = 4, hjust = 0, fontface = "bold") +  
   facet_wrap(~TrueRho, labeller = label_bquote(cols = "True " * rho * " = " * .(TrueRho)))+
   labs(
     title = "PGEE: 95% Confidence Interval Coverage Probability",
@@ -625,22 +575,17 @@ ggsave(
 )
 
 
-
-
-# ===================================================================
-# 9. 检验PGEE标准误的准确性 (可选补充图)
-# ===================================================================
+                   
 beta_labels <- c(expression(beta[1]), expression(beta[2]),
                  expression(beta[3]), expression(beta[4]),
                  expression(beta[5]))
 
-# 将数据从宽格式转换为长格式，方便ggplot绘图
-# 1. 准备标签
+
 beta_labels <- c(expression(beta[1]), expression(beta[2]),
                  expression(beta[3]), expression(beta[4]),
                  expression(beta[5]))
 
-# 2. 转换长数据并生成表达式标签
+
 table2_sd_long <- table2_summary %>%
   select(TrueRho, WorkingCorr, beta_idx, SD1, SD2) %>%
   pivot_longer(cols = c("SD1", "SD2"),
@@ -657,7 +602,7 @@ table2_sd_long <- table2_summary %>%
     )
   )
 
-# 3. 绘图
+
 p_sd_comparison <- ggplot(table2_sd_long, aes(x = factor(beta_idx), y = Value, fill = SD_Type)) +
   geom_bar(stat = "identity", position = "dodge", width = 0.7) +
   facet_wrap(~ PanelLabel, labeller = label_parsed, nrow = 2) +
@@ -685,7 +630,7 @@ p_sd_comparison <- ggplot(table2_sd_long, aes(x = factor(beta_idx), y = Value, f
     legend.text = element_text(size = 16)
   )
 
-# 4. 保存图像
+
 ggsave(
   filename = "C:/Users/Lenovo/Desktop/plot_6_SD_Comparison.pdf", 
   plot = p_sd_comparison, 
@@ -700,15 +645,14 @@ ggsave(
 
 
 
-# 画所有lambda的箱线图
+
+                   
 library(ggplot2)
-# 将 lambda_record 转为数据框
 df_lambda <- data.frame(lambda = lambda_record)
 
-# 计算中位数
 median_value <- median(df_lambda$lambda, na.rm = TRUE)
 
-# 创建 ggplot 箱线图
+
 p_lambda <- ggplot(df_lambda, aes(x = "", y = lambda)) +
   geom_boxplot(fill = "lightblue", color = "darkblue", width = 0.3) +
   geom_hline(yintercept = median_value, color = "red", linetype = "dashed", size = 1.2) +
@@ -727,7 +671,6 @@ p_lambda <- ggplot(df_lambda, aes(x = "", y = lambda)) +
     axis.ticks.x = element_blank()
   )
 
-# 用 ggsave 保存为 PDF
 ggsave(
   filename = "C:/Users/Lenovo/Desktop/plot_7_boxplot_lambda.pdf",
   plot = p_lambda,
@@ -741,28 +684,19 @@ ggsave(
 
 
 
-# 导出高清图像
-# 10. 新增图：可视化PGEE性能对Lambda的敏感性 (调优曲线) - 修正版
-# ===================================================================
-# 我们使用最后一次模拟中产生的 cv_result 对象来绘图
 
-# 1. 整理CVfit的结果到一个数据框 (使用截图中正确的元素名称)
-# 1. 创建数据（假设 cv_result 已有）
-# 构造 tuning 数据框
 tuning_data <- data.frame(
   lambda = cv_result$lam.vect,
   cv_error = cv_result$cv.vect
 )
 
-# 误差标准化
 n_total <- n * m  # 例如 n=200, m=4，则总数为 800
 tuning_data$cv_error <- tuning_data$cv_error / n_total
 min_error <- min(tuning_data$cv_error)
 
-# 获取最优 lambda（不需要除）
 lam_opt <- cv_result$lam.opt
 
-# 绘图
+
 p_sensitivity <- ggplot(tuning_data, aes(x = lambda, y = cv_error)) +
   geom_line(color = "black", size = 1.5) +
   geom_point(color = "black", size = 3) +
@@ -789,7 +723,6 @@ p_sensitivity <- ggplot(tuning_data, aes(x = lambda, y = cv_error)) +
     axis.text = element_text(size = 16)
   )
 
-# 保存为 PDF 文件
 ggsave(
   filename = "C:/Users/Lenovo/Desktop/plot_8_PGEE_Performance_Sensitivity_to_Lambda.pdf",
   plot = p_sensitivity,
@@ -798,6 +731,7 @@ ggsave(
 
 
 summary(cv_result$cv.vect)
+
 
 
 
