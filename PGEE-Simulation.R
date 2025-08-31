@@ -393,9 +393,9 @@ print(lambda_record)
 
 
 my_color_palette <- c(
-  "ar1" = "#fc8d62",          # 橙红色
-  "exchangeable" = "#66c2a5",   # 蓝绿色
-  "independence" = "#8da0cb"    # 蓝紫色
+  "ar1" = "#fc8d62",          
+  "exchangeable" = "#66c2a5",  
+  "independence" = "#8da0cb"   
 )
 
 #MSE
@@ -485,17 +485,17 @@ labs(
     y = "Absolute Bias",
     fill = "Working Correlation"
   ) +
-  theme_bw(base_size = 18) +  # 整体字体基准
+  theme_bw(base_size = 18) + 
   theme(
-    plot.title = element_text(face = "bold", hjust = 0.5, size = 22),   # 标题
-    axis.title = element_text(size = 20),        # 坐标轴标题
-    axis.text = element_text(size = 18),         # 坐标轴刻度
-    legend.title = element_text(size = 18),      # 图例标题
-    legend.text = element_text(size = 16),       # 图例文字
-    strip.text = element_text(face = "bold", size = 20),  # 分面标题
+    plot.title = element_text(face = "bold", hjust = 0.5, size = 22),  
+    axis.title = element_text(size = 20),       
+    axis.text = element_text(size = 18),       
+    legend.title = element_text(size = 18),      
+    legend.text = element_text(size = 16),       
+    strip.text = element_text(face = "bold", size = 20),  
     legend.position = "right"
   ) +
-  scale_x_discrete(labels = beta_labels) +  # ✅ 使用表达式标签
+  scale_x_discrete(labels = beta_labels) +  
   scale_fill_manual(values = my_color_palette)
 
 # Bias
@@ -690,7 +690,7 @@ tuning_data <- data.frame(
   cv_error = cv_result$cv.vect
 )
 
-n_total <- n * m  # 例如 n=200, m=4，则总数为 800
+n_total <- n * m  
 tuning_data$cv_error <- tuning_data$cv_error / n_total
 min_error <- min(tuning_data$cv_error)
 
@@ -713,7 +713,7 @@ p_sensitivity <- ggplot(tuning_data, aes(x = lambda, y = cv_error)) +
     title = bquote("PGEE Performance Sensitivity to " * lambda),
     subtitle = "Cross-Validation Error vs. Lambda Tuning Parameter",
     x = expression("Lambda (" * lambda * ")"),
-    y = "Average Cross-Validation Error per Observation"  # 更准确的 Y 轴标签
+    y = "Average Cross-Validation Error per Observation"  
   ) +
   theme_bw(base_size = 18) +
   theme(
@@ -731,6 +731,7 @@ ggsave(
 
 
 summary(cv_result$cv.vect)
+
 
 
 
